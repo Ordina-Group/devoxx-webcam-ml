@@ -1,5 +1,5 @@
 {
-  "name": "devoxx-webcam-demo",
+  "name": "devoxx-webcam-ml",
   "version": "0.0.1",
   "description": "Devoxx demo application that detects objects in the live webcam view",
   "main": "src/index.js",

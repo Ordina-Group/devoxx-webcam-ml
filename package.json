@@ -1,0 +1,23 @@
+{
+  "name": "devoxx-webcam-demo",
+  "version": "0.0.1",
+  "description": "Devoxx demo application that detects objects in the live webcam view",
+  "main": "src/index.js",
+  "scripts": {
+    "postinstall": "tsc",
+    "compile": "tsc",
+    "electron": "electron .",
+    "electron_mac": "open node_modules/electron/dist/Electron.app --args $PWD"
+  },
+  "engines": {
+    "node": ">=12.13.0"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs-node": "^1.2.11",
+    "typescript": "^3.6.4"
+  },
+  "devDependencies": {
+    "electron": "7.0.0",
+    "electron-packager": "^14.0.6"
+  }
+}

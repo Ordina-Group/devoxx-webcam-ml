@@ -1,7 +1,9 @@
 const path = require('path');
 const Loader = require(path.resolve(__dirname, '../../coco/web-loader')).Loader;
+const CLASSES = require(path.resolve(__dirname, '../../coco/classes')).CLASSES;
 
 const framerate = 7;
+let enableLiveUpdate = true;
 
 window.onload = async () => {
     const detector = await Loader.loadCoco(false, path.resolve(__dirname, '../../../'));
@@ -26,15 +28,65 @@ window.onload = async () => {
     const context = canvas.getContext('2d');
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    await draw(video, canvas, context, detector);
+    await update(video, canvas, context, detector);
 };
 
-async function draw(video, canvas, context, detector) {
+async function update(video, canvas, context, detector) {
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     const detectedClasses = await detector.detect(canvas);
-    console.log(detectedClasses);
     Loader.anotateCanvas(canvas, detectedClasses);
+    updateList(detectedClasses);
 
-    setTimeout(draw, 1000 / framerate, video, canvas, context, detector);
+    if (enableLiveUpdate) {
+        setTimeout(update, 1000 / framerate, video, canvas, context, detector);
+    }
+}
+
+function updateList(detections) {
+    const listSection = document.getElementById('list-section');
+    listSection.style.width = (getBrowserWidth() - 1280) + 'px';
+
+    const list = document.getElementById('detections');
+    while (list.firstChild) {
+        list.removeChild(list.firstChild);
+    }
+
+    for (const detection of detections) {
+        const listItem = document.createElement('li');
+        listItem.classList.add('list-item');
+
+        const itemImg = document.createElement('img');
+        itemImg.src = 'img/classes/' + getClassIdFromName(detection.class) + '.jpg';
+        itemImg.width = 76;
+        itemImg.height = 76;
+        itemImg.classList.add('list-item-img');
+        listItem.appendChild(itemImg);
+
+        const itemText = document.createElement('p');
+        itemText.classList.add('list-item-text');
+        itemText.innerText = detection.class + ': ' + Math.round(detection.score * 100) + '%';
+        listItem.appendChild(itemText);
+
+        list.appendChild(listItem);
+    }
+}
+
+function getClassIdFromName(name) {
+    const values = Object.values(CLASSES);
+    for (const value of values) {
+        if(value.displayName === name) {
+            return value.id;
+        }
+    }
+}
+
+function getBrowserWidth() {
+    return Math.max(
+        document.body.scrollWidth,
+        document.documentElement.scrollWidth,
+        document.body.offsetWidth,
+        document.documentElement.offsetWidth,
+        document.documentElement.clientWidth
+    );
 }

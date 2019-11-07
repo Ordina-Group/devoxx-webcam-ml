@@ -1,8 +1,8 @@
 const path = require('path');
 const CLASSES = require(path.resolve(__dirname, '../../coco/classes')).CLASSES;
 
-const framerate = 7;
-const numOfWorkers = 1;
+const framerate = 15;
+const numOfWorkers = 3;
 let enableLiveUpdate = true;
 
 let frameNr = 0;
@@ -13,9 +13,6 @@ window.onload = async () => {
     for (let i = 0; i < numOfWorkers; i++) {
         workers.push(new Worker(path.resolve(__dirname, 'js/worker.js')));
     }
-
-    //new Worker(path.resolve(__dirname, 'js/worker2.js'));
-    //new Worker(path.resolve(__dirname, 'js/worker.js'));
 
     const stream = await navigator.mediaDevices
         .getUserMedia({

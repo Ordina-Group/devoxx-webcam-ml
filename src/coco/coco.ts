@@ -15,7 +15,7 @@
  * =============================================================================
  */
 
-import * as tf from '@tensorflow/tfjs-node'
+import * as tf from '@tensorflow/tfjs';
 
 import {CLASSES} from './classes';
 import {resolve} from "path";
@@ -116,16 +116,13 @@ export class ObjectDetection {
         batched.dispose();
         tf.dispose(result);
 
-        const [maxScores, classes] =
-            this.calculateMaxScores(scores, result[0].shape[1], result[0].shape[2]);
+        const [maxScores, classes] = this.calculateMaxScores(scores, result[0].shape[1], result[0].shape[2]);
+        const boxes2 = tf.tensor2d(boxes, [result[1].shape[1], result[1].shape[3]]);
+        const temp = await tf.image.nonMaxSuppressionAsync(boxes2, maxScores, maxNumBoxes, 0.5, 0.5);
 
         const indexTensor = tf.tidy(() => {
-            const boxes2 =
-                tf.tensor2d(boxes, [result[1].shape[1], result[1].shape[3]]);
-            return tf.image.nonMaxSuppression(
-                boxes2, maxScores, maxNumBoxes, 0.5, 0.5);
+            return temp;
         });
-
         const indexes = indexTensor.dataSync() as Float32Array;
         indexTensor.dispose();
 

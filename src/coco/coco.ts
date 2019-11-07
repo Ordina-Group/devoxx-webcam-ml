@@ -91,6 +91,7 @@ export class ObjectDetection {
         img: tf.Tensor3D | ImageData | HTMLImageElement | HTMLCanvasElement |
             HTMLVideoElement,
         maxNumBoxes: number): Promise<DetectedObject[]> {
+
         const batched = tf.tidy(() => {
             if (!(img instanceof tf.Tensor)) {
                 img = tf.browser.fromPixels(img);
@@ -135,6 +136,7 @@ export class ObjectDetection {
     private buildDetectedObjects(
         width: number, height: number, boxes: Float32Array, scores: number[],
         indexes: Float32Array, classes: number[]): DetectedObject[] {
+
         const count = indexes.length;
         const objects: DetectedObject[] = [];
         for (let i = 0; i < count; i++) {
@@ -162,6 +164,7 @@ export class ObjectDetection {
     private calculateMaxScores(
         scores: Float32Array, numBoxes: number,
         numClasses: number): [number[], number[]] {
+
         const maxes = [];
         const classes = [];
         for (let i = 0; i < numBoxes; i++) {

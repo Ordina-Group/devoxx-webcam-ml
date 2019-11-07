@@ -1,12 +1,22 @@
 const path = require('path');
-const Loader = require(path.resolve(__dirname, '../../coco/web-loader')).Loader;
 const CLASSES = require(path.resolve(__dirname, '../../coco/classes')).CLASSES;
 
 const framerate = 7;
+const numOfWorkers = 1;
 let enableLiveUpdate = true;
 
+let frameNr = 0;
+const renderedFrames = [];
+
 window.onload = async () => {
-    const detector = await Loader.loadCoco(false, path.resolve(__dirname, '../../../'));
+    const workers = [];
+    for (let i = 0; i < numOfWorkers; i++) {
+        workers.push(new Worker(path.resolve(__dirname, 'js/worker.js')));
+    }
+
+    //new Worker(path.resolve(__dirname, 'js/worker2.js'));
+    //new Worker(path.resolve(__dirname, 'js/worker.js'));
+
     const stream = await navigator.mediaDevices
         .getUserMedia({
             video: {
@@ -22,24 +32,76 @@ window.onload = async () => {
         video.play();
     };
 
-    const canvas = document.querySelector('canvas');
-    canvas.width = 1280;
-    canvas.height = 720;
-    const context = canvas.getContext('2d');
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const previewCanvas = document.querySelector('canvas');
+    previewCanvas.width = 1280;
+    previewCanvas.height = 720;
+    const previewContext = previewCanvas.getContext('2d');
 
-    await update(video, canvas, context, detector);
+    const webcamCanvas = new OffscreenCanvas(previewCanvas.width, previewCanvas.height);
+    const webcamContext = webcamCanvas.getContext('2d');
+
+    await update(video, previewCanvas, previewContext, webcamCanvas, webcamContext, workers);
 };
 
-async function update(video, canvas, context, detector) {
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+async function update(video, previewCanvas, previewContext, webcamCanvas, webcamContext, workers) {
+    webcamContext.drawImage(video, 0, 0, previewCanvas.width, previewCanvas.height);
+    const imgData = webcamContext.getImageData(0, 0, previewCanvas.width, previewCanvas.height);
 
-    const detectedClasses = await detector.detect(canvas);
-    Loader.anotateCanvas(canvas, detectedClasses);
-    updateList(detectedClasses);
+    const freeWorker = workers.shift();
+    freeWorker.postMessage([{nr: frameNr++, width: previewCanvas.width, height: previewCanvas.height, imgData: imgData}]);
+    workers.push(freeWorker);
+
+    for (const worker of workers) {
+        worker.onmessage = (message) => {
+            renderedFrames.push({
+                nr: message.data[0].nr,
+                imgData: message.data[0].imgData,
+                detections: message.data[0].detections
+            });
+        };
+    }
+
+    /*detectorWorker.postMessage([{nr: frameNr++, width: previewCanvas.width, height: previewCanvas.height, imgData: imgData}]);
+    detectorWorker.onmessage = (message) => {
+        renderedFrames.push({
+            nr: message.data[0].nr,
+            imgData: message.data[0].imgData,
+            detections: message.data[0].detections
+        });
+
+        console.log('Frames in buffer: ' + renderedFrames.length);
+        if (renderedFrames.length >= 10) {
+            renderedFrames.sort((a, b) => {
+                if(a.nr < b.nr) {
+                    return 1;
+                } else if(a.nr > b.nr) {
+                    return -1;
+                }
+            });
+
+            const frameToRender = renderedFrames.pop();
+            updateList(frameToRender.detections);
+            previewContext.putImageData(frameToRender.imgData, 0, 0);
+        }
+    };*/
+
+    console.log('Frames in buffer: ' + renderedFrames.length);
+    if (renderedFrames.length >= 1) {
+        renderedFrames.sort((a, b) => {
+            if(a.nr < b.nr) {
+                return 1;
+            } else if(a.nr > b.nr) {
+                return -1;
+            }
+        });
+
+        const frameToRender = renderedFrames.pop();
+        updateList(frameToRender.detections);
+        previewContext.putImageData(frameToRender.imgData, 0, 0);
+    }
 
     if (enableLiveUpdate) {
-        setTimeout(update, 1000 / framerate, video, canvas, context, detector);
+        setTimeout(update, 1000 / framerate, video, previewCanvas, previewContext, webcamCanvas, webcamContext, workers);
     }
 }
 

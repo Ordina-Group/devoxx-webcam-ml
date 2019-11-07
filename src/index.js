@@ -8,11 +8,12 @@ function createWindow () {
         width: 1920,
         height: 1080,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            nodeIntegrationInWorker: true,
         }
     });
 
-    //win.webContents.openDevTools();
+    win.webContents.openDevTools();
     win.loadFile('./src/devoxx/site/index.html');
 }
 

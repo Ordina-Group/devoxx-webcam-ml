@@ -6,8 +6,8 @@
   "scripts": {
     "postinstall": "tsc",
     "compile": "tsc",
-    "electron": "electron .",
-    "electron_mac": "open node_modules/electron/dist/Electron.app --args $PWD"
+    "electron": "tsc && electron .",
+    "electron_mac": "tsc && open node_modules/electron/dist/Electron.app --args $PWD"
   },
   "engines": {
     "node": ">=12.13.0"

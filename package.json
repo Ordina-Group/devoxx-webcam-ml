@@ -6,14 +6,14 @@
   "scripts": {
     "postinstall": "tsc",
     "compile": "tsc",
-    "electron": "electron .",
-    "electron_mac": "open node_modules/electron/dist/Electron.app --args $PWD"
+    "electron": "tsc && electron .",
+    "electron_mac": "tsc && open node_modules/electron/dist/Electron.app --args $PWD"
   },
   "engines": {
     "node": ">=12.13.0"
   },
   "dependencies": {
-    "@tensorflow/tfjs-node": "^1.2.11",
+    "@tensorflow/tfjs": "^1.3.2",
     "typescript": "^3.6.4"
   },
   "devDependencies": {

@@ -15,7 +15,7 @@
  * =============================================================================
  */
 
-import * as tf from '@tensorflow/tfjs-node'
+import * as tf from '@tensorflow/tfjs';
 
 import {CLASSES} from './classes';
 import {resolve} from "path";
@@ -91,6 +91,7 @@ export class ObjectDetection {
         img: tf.Tensor3D | ImageData | HTMLImageElement | HTMLCanvasElement |
             HTMLVideoElement,
         maxNumBoxes: number): Promise<DetectedObject[]> {
+
         const batched = tf.tidy(() => {
             if (!(img instanceof tf.Tensor)) {
                 img = tf.browser.fromPixels(img);
@@ -115,16 +116,13 @@ export class ObjectDetection {
         batched.dispose();
         tf.dispose(result);
 
-        const [maxScores, classes] =
-            this.calculateMaxScores(scores, result[0].shape[1], result[0].shape[2]);
+        const [maxScores, classes] = this.calculateMaxScores(scores, result[0].shape[1], result[0].shape[2]);
+        const boxes2 = tf.tensor2d(boxes, [result[1].shape[1], result[1].shape[3]]);
+        const temp = await tf.image.nonMaxSuppressionAsync(boxes2, maxScores, maxNumBoxes, 0.5, 0.5);
 
         const indexTensor = tf.tidy(() => {
-            const boxes2 =
-                tf.tensor2d(boxes, [result[1].shape[1], result[1].shape[3]]);
-            return tf.image.nonMaxSuppression(
-                boxes2, maxScores, maxNumBoxes, 0.5, 0.5);
+            return temp;
         });
-
         const indexes = indexTensor.dataSync() as Float32Array;
         indexTensor.dispose();
 
@@ -135,6 +133,7 @@ export class ObjectDetection {
     private buildDetectedObjects(
         width: number, height: number, boxes: Float32Array, scores: number[],
         indexes: Float32Array, classes: number[]): DetectedObject[] {
+
         const count = indexes.length;
         const objects: DetectedObject[] = [];
         for (let i = 0; i < count; i++) {
@@ -162,6 +161,7 @@ export class ObjectDetection {
     private calculateMaxScores(
         scores: Float32Array, numBoxes: number,
         numClasses: number): [number[], number[]] {
+
         const maxes = [];
         const classes = [];
         for (let i = 0; i < numBoxes; i++) {

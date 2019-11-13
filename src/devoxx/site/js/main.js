@@ -2,7 +2,7 @@ const path = require('path');
 const Loader = require(path.resolve(__dirname, '../../coco/web-loader')).Loader;
 const CLASSES = require(path.resolve(__dirname, '../../coco/classes')).CLASSES;
 
-const framerate = 7;
+const framerate = 10;
 let enableLiveUpdate = true;
 
 window.onload = async () => {

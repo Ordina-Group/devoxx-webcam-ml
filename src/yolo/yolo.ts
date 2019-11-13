@@ -2,7 +2,7 @@
 Taken from https://github.com/zqingr/tfjs-yolov3/blob/master/README_EN.md and modified to run on node instead of the browser!
  */
 
-import * as tf from '@tensorflow/tfjs-node'
+import * as tf from '@tensorflow/tfjs'
 import {ANCHORS, ANCHORS_TINY, COCO_CLASSESS} from './config'
 import {resolve} from "path";
 

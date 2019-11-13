@@ -37,7 +37,6 @@ async function update(video, canvas, context, detector) {
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     const detectedClasses = await detector.detect(canvas);
-    console.log(detectedClasses);
     Loader.anotateCanvas(canvas, detectedClasses);
     updateList(detectedClasses);
 

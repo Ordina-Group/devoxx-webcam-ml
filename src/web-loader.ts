@@ -1,4 +1,4 @@
-import {createCocoModel, DetectedObject, ObjectDetection} from "./coco/coco";
+import {createCocoModel, ObjectDetection} from "./coco/coco";
 import {yolov3, yolov3Tiny} from "./yolo/yolo";
 
 export class Loader {

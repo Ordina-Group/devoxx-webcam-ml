@@ -19,12 +19,7 @@ import * as tf from '@tensorflow/tfjs-node'
 
 import {CLASSES} from './classes';
 import {resolve} from "path";
-
-export interface DetectedObject {
-    bbox: [number, number, number, number];  // [x, y, width, height]
-    class: string;
-    score: number;
-}
+import {DetectedObject} from "../web-loader";
 
 export async function createCocoModel(useLiteModel: boolean, basePath: string = '.') {
     const objectDetection = new ObjectDetection(basePath, useLiteModel ? 'mobilenet_v2_lite' : 'mobilenet_v2');

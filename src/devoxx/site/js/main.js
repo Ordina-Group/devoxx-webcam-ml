@@ -1,12 +1,14 @@
 const path = require('path');
-const Loader = require(path.resolve(__dirname, '../../coco/web-loader')).Loader;
-const CLASSES = require(path.resolve(__dirname, '../../coco/classes')).CLASSES;
+const Loader = require(path.resolve(__dirname, '../../web-loader')).Loader;
+const COCO_CLASSES = require(path.resolve(__dirname, '../../coco/classes')).CLASSES;
 
-const framerate = 7;
+const framerate = 2;
 let enableLiveUpdate = true;
 
 window.onload = async () => {
-    const detector = await Loader.loadCoco(false, path.resolve(__dirname, '../../../'));
+    //const detector = await Loader.loadCoco(false, path.resolve(__dirname, '../../../'));
+    const detector = await Loader.loadYolo(true, path.resolve(__dirname, '../../../'));
+
     const stream = await navigator.mediaDevices
         .getUserMedia({
             video: {
@@ -35,6 +37,7 @@ async function update(video, canvas, context, detector) {
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     const detectedClasses = await detector.detect(canvas);
+    console.log(detectedClasses);
     Loader.anotateCanvas(canvas, detectedClasses);
     updateList(detectedClasses);
 
@@ -73,7 +76,7 @@ function updateList(detections) {
 }
 
 function getClassIdFromName(name) {
-    const values = Object.values(CLASSES);
+    const values = Object.values(COCO_CLASSES);
     for (const value of values) {
         if(value.displayName === name) {
             return value.id;

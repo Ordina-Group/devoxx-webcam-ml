@@ -91,3 +91,5 @@ typings/
 
 src/coco/*.js
 src/coco/*.js.map
+
+.idea

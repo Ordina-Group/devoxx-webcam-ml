@@ -95,3 +95,5 @@ src/yolo/*.js
 src/yolo/*.js.map
 src/web-loader.js
 src/web-loader.js.map
+
+.idea
